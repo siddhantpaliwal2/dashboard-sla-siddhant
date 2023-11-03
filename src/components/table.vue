@@ -2,31 +2,28 @@
   <div>
     <!-- Hide By status Bar -->
     <div class="hideBar">
-      <label class="hideLabel"> Hide: </label>
+      <label class="hideLabel">Hide:</label>
       <div class="checkbox">
         <!-- All status -->
         <input
-          :id="productDataBystatus.status"
+          id="allStatuses"
           type="checkbox"
           class="styled"
-          :value="productDataBystatus.status"
           @click="hideShowALLstatus"
-          v-model="hidestatus"
+          v-model="allCheck"
         />
-        <label :for="productDataBystatus.status">All statuses</label>
+        <label for="allStatuses">All statuses</label>
 
-        <!-- Dynamic status -->
-        <div v-for="status in productDataBystatus.status" :key="`${status}`">
+        <!-- Dynamic status checkboxes -->
+        <div v-for="status in productDataBystatus.status" :key="status">
           <input
-            :id="`${status}`"
+            :id="status"
             type="checkbox"
             class="styled"
             :value="status"
             v-model="hidestatus"
           />
-          <label :for="`${status}`">
-            {{ status }}
-          </label>
+          <label :for="status">{{ status }}</label>
         </div>
       </div>
     </div>
@@ -35,7 +32,7 @@
     <table>
       <thead>
         <tr>
-          <td :colspan="12">Dashboard SLA</td>
+          <th colspan="12">Dashboard SLA</th>
         </tr>
         <tr>
           <th colspan="3">{{ wwData }}</th>
@@ -52,42 +49,33 @@
         </tr>
       </thead>
       <tbody>
-        <template>
-              <tr v-for="(row, index) in paginatedData" :key="index">
-                <td v-if="!index || (index && paginatedData[index-1].status !== row.status)" 
-                    :rowspan="calculateRowspanNew('status', index)" 
-                    class="width10">{{ row.status }}
-                </td>
-                <td v-if="!index || (index && paginatedData[index-1].status !== row.status)" 
-                    :rowspan="calculateRowspanNew('status', index)" 
-                    class="width1">{{ row.core }}
-                  </td>
-                <td class="productColumn">{{ row.product }}</td>
-                <td >{{ row.lithography }}</td>
-                <td><div class = "innerCells">{{row.threads}}</div></td>
-                <td >
-                  <div class = "innerCells">{{ row.baseFreq }} </div>
-                </td>
-                <td ><div class = "innerCells">{{ row.maxTurboFreq }}</div></td>
-                <!-- ... other cells with row.Lithography, row.Threads, etc. ... -->
-              </tr>
-        </template>
+        <tr v-for="(row, index) in paginatedData" :key="index">
+          <td v-if="!index || (index && paginatedData[index-1].status !== row.status)" :rowspan="calculateRowspanNew('status', index)" class="width10">{{ row.status }}</td>
+          <td v-if="!index || (index && paginatedData[index-1].status !== row.status)" :rowspan="calculateRowspanNew('status', index)" class="width1">{{ row.core }}</td>
+          <td class="productColumn">{{ row.product }}</td>
+          <td>{{ row.lithography }}</td>
+          <td><div class="innerCells">{{ row.threads }}</div></td>
+          <td><div class="innerCells">{{ row.baseFreq }}</div></td>
+          <td><div class="innerCells">{{ row.maxTurboFreq }}</div></td>
+          <!-- ... other cells ... -->
+        </tr>
       </tbody>
     </table>
-    <!-- End of Table Design -->
+
+    <!-- Pagination Navigation -->
     <nav aria-label="Page navigation">
-    <ul class="pagination">
-      <li class="page-item" :class="{ disabled: currentPage === 0 }">
-        <button @click="currentPage--" :disabled="currentPage === 0">Previous</button>
-      </li>
-      <li v-for="n in totalPages" :key="n" class="page-item" :class="{ active: n === currentPage }">
-        <button @click="changePage(n)">{{ n }}</button>
-      </li>
-      <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-        <button @click="currentPage++" :disabled="currentPage === totalPages">Next</button>
-      </li>
-    </ul>
-  </nav>
+      <ul class="pagination">
+        <li class="page-item" :class="{ disabled: currentPage === 0 }">
+          <button @click="currentPage--" :disabled="currentPage === 0">Previous</button>
+        </li>
+        <li v-for="n in totalPages" :key="n" class="page-item" :class="{ active: n === currentPage }">
+          <button @click="changePage(n)">{{ n }}</button>
+        </li>
+        <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+          <button @click="currentPage++" :disabled="currentPage === totalPages">Next</button>
+        </li>
+      </ul>
+    </nav>
   </div>
 </template>
 
