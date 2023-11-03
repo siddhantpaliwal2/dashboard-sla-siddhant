@@ -52,61 +52,66 @@
         </tr>
       </thead>
       <tbody>
-        <template v-for="(data, status, index) in productDataBystatus.data">
-          <!-- status -->
-          <tr>
-            <td class="width1" :rowspan="calstatusRowspan(data)">
-              {{ status }}
-            </td>
-          </tr>
-
-          <template v-for="cores in Object.keys(data)">
-            <!-- cores -->
-            <tr>
-              <td class="width1" :rowspan="Object.keys(data[cores]).length + 1">
-                {{ cores }}
-              </td>
-            </tr>
-
-            <tr v-for="(v, k) in data[cores]">
-              <!-- product -->
-              <td class="productColumn">{{ v.Product }}</td>
-
-              <!-- Lithography -->
-              <td>{{ v.Lithography }}</td>
-
-              <!-- Threads -->
-              <td>
-                <div class="innerCells">
-                  <input :value="v.Threads" :disabled="true" type="text" />
-                </div>
-              </td>
-
-              <!-- Base Freq -->
-              <td>
-                <div class="innerCells">
-                  <input :value="v.Base_Freq" :disabled="true" type="text" />
-                </div>
-              </td>
-
-              <!-- Max Turbo Freq -->
-              <td>
-                <div class="innerCells">
-                  <input :value="v.Max_Turbo_Freq" type="text" :disabled="true" />
-                </div>
-              </td>
-            </tr>
-          </template>
+        <template>
+              <tr v-for="(row, index) in paginatedData" :key="index">
+                <td class="width1">{{ row.status }}</td>
+                <td class="width1">{{ row.core }}</td>
+                <td class="productColummn">{{ row.product }}</td>
+                <td >{{ row.lithography }}</td>
+                <td >{{ row.threads }}</td>
+                <td >{{ row.baseFreq }}</td>
+                <td >{{ row.maxTurboFreq }}</td>
+                <!-- ... other cells with row.Lithography, row.Threads, etc. ... -->
+              </tr>
         </template>
       </tbody>
     </table>
     <!-- End of Table Design -->
+    <nav aria-label="Page navigation">
+    <ul class="pagination">
+      <li class="page-item" :class="{ disabled: currentPage === 0 }">
+        <button @click="currentPage--" :disabled="currentPage === 0">Previous</button>
+      </li>
+      <li v-for="n in totalPages" :key="n" class="page-item" :class="{ active: n === currentPage }">
+        <button @click="changePage(n)">{{ n }}</button>
+      </li>
+      <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+        <button @click="currentPage++" :disabled="currentPage === totalPages">Next</button>
+      </li>
+    </ul>
+  </nav>
   </div>
 </template>
 
 
 <script>
-import data from "../assets/data.json";
+import data_json from "../assets/data.json";
+
+function flattenData(productDataByStatus) {
+        const flatData = [];
+        // Iterate over each status
+        for (const [status, cores] of Object.entries(productDataByStatus)) {
+          // Iterate over each core within this status
+          for (const [core, products] of Object.entries(cores)) {
+            // Iterate over each product within this core
+            for (const product of products) {
+              // Create a flat representation of the row
+              flatData.push({
+                status: status,
+                core: core,
+                product: product.Product,
+                lithography: product.Lithography,
+                threads: product.Threads,
+                baseFreq: product.Base_Freq,
+                maxTurboFreq: product.Max_Turbo_Freq,
+              });
+            }
+          }
+        }
+        console.log("flattened data:", {flatData});
+        return flatData;
+      }
+
 export default {
   data: function () {
     return {
@@ -115,20 +120,23 @@ export default {
       UIData: [],
       wwInfo: {},
       allCheck: false,
+      currentPage: 0,
+      rowsPerPage: 100
     };
   },
   mounted() {
-    this.UIData = data;
+    this.UIData = data_json;
     this.wwInfo = this.getWWFromDate();
   },
   computed: {
+    
     wwData() {
       return `${this.wwInfo.year}WW${this.wwInfo.workweek}.${this.wwInfo.numofday}`;
     },
 
     productDataBystatus() {
       let tmp = {};
-      let data = this.UIData;
+      let data = data_json;
       let statusSet = new Set();
 
       data.forEach((element) => {
@@ -149,21 +157,48 @@ export default {
       const strings = new Set(statusSet);
       const sortedStringsArray = [...strings].sort();
       statusSet = new Set(sortedStringsArray);
+      console.log(tmp);
+
 
       return {
         status: [...statusSet],
         data: tmp,
       };
     },
+    
+    paginatedData() {
+      // You now call the external flattenData function and pass the data it needs.
+      let tmp = {};
+      let data = data_json;
+      let statusSet = new Set();
+
+      data.forEach((element) => {
+        let status = element.Status;
+        let cores = element.Cores;
+
+        // push status to set
+        statusSet.add(status);
+
+        if (this.hidestatus.includes(status)) return; // Hide by status
+        if (!tmp[status]) tmp[status] = {};
+        if (!tmp[status][cores]) tmp[status][cores] = [];
+
+        tmp[status][cores].push(element);
+      });
+
+      // sort status in order
+      const strings = new Set(statusSet);
+      const sortedStringsArray = [...strings].sort();
+      statusSet = new Set(sortedStringsArray);
+      console.log(tmp);
+      const flatData = flattenData(tmp);
+      const start = (this.currentPage) * this.rowsPerPage;
+      console.log(flatData.slice(start, start + this.rowsPerPage))
+      return flatData.slice(start, start + this.rowsPerPage);
+    }
+
   },
   methods: {
-    calstatusRowspan(data) {
-      let sum = Object.keys(data).length + 1;
-      for (const cores in data) {
-        sum += Object.keys(data[cores]).length;
-      }
-      return sum;
-    },
     getWWFromDate(date = null) {
       let currentDate = date || new Date();
       let startDate = new Date(currentDate.getFullYear(), 0, 1);
@@ -175,6 +210,23 @@ export default {
         numofday: currentDate.getDay(),
       };
     },
+
+
+    movePages(amount) {
+      const newPage = this.currentPage + amount;
+      if (newPage > 0 && newPage <= this.totalPages) {
+        this.currentPage = newPage;
+      }
+    },
+    },
+    calstatusRowspan(data) {
+      let sum = Object.keys(data).length + 1;
+      for (const cores in data) {
+        sum += Object.keys(data[cores]).length;
+      }
+      return sum;
+    },
+    
     hideShowALLstatus() {
       if (!document.querySelector(".styled").checked) {
         this.hidestatus = [];
@@ -194,8 +246,8 @@ export default {
         this.allCheckBox = [];
       }
     },
-  },
-};
+  };
+
 </script>
 
 
