@@ -54,13 +54,21 @@
       <tbody>
         <template>
               <tr v-for="(row, index) in paginatedData" :key="index">
-                <td class="width1">{{ row.status }}</td>
-                <td class="width1">{{ row.core }}</td>
-                <td class="productColummn">{{ row.product }}</td>
+                <td v-if="!index || (index && paginatedData[index-1].status !== row.status)" 
+                    :rowspan="calculateRowspanNew('status', index)" 
+                    class="width10">{{ row.status }}
+                </td>
+                <td v-if="!index || (index && paginatedData[index-1].status !== row.status)" 
+                    :rowspan="calculateRowspanNew('status', index)" 
+                    class="width1">{{ row.core }}
+                  </td>
+                <td class="productColumn">{{ row.product }}</td>
                 <td >{{ row.lithography }}</td>
-                <td >{{ row.threads }}</td>
-                <td >{{ row.baseFreq }}</td>
-                <td >{{ row.maxTurboFreq }}</td>
+                <td><div class = "innerCells">{{row.threads}}</div></td>
+                <td >
+                  <div class = "innerCells">{{ row.baseFreq }} </div>
+                </td>
+                <td ><div class = "innerCells">{{ row.maxTurboFreq }}</div></td>
                 <!-- ... other cells with row.Lithography, row.Threads, etc. ... -->
               </tr>
         </template>
@@ -121,7 +129,7 @@ export default {
       wwInfo: {},
       allCheck: false,
       currentPage: 0,
-      rowsPerPage: 100
+      rowsPerPage: 100,
     };
   },
   mounted() {
@@ -195,10 +203,20 @@ export default {
       const start = (this.currentPage) * this.rowsPerPage;
       console.log(flatData.slice(start, start + this.rowsPerPage))
       return flatData.slice(start, start + this.rowsPerPage);
-    }
+    },
+    
 
   },
   methods: {
+    calculateRowspanNew(column, index) {
+      let rowspan = 1;
+      let i = index + 1;
+      while (i < this.paginatedData.length && this.paginatedData[i][column] === this.paginatedData[index][column]) {
+        rowspan++;
+        i++;
+      }
+      return rowspan;
+    },
     getWWFromDate(date = null) {
       let currentDate = date || new Date();
       let startDate = new Date(currentDate.getFullYear(), 0, 1);
@@ -211,14 +229,13 @@ export default {
       };
     },
 
-
     movePages(amount) {
-      const newPage = this.currentPage + amount;
-      if (newPage > 0 && newPage <= this.totalPages) {
-        this.currentPage = newPage;
-      }
-    },
-    },
+    const newPage = this.currentPage + amount;
+    if (newPage >= 0 && newPage < this.totalPages) { // Notice the strict less than
+      this.currentPage = newPage;
+    }
+  },
+    
     calstatusRowspan(data) {
       let sum = Object.keys(data).length + 1;
       for (const cores in data) {
@@ -246,7 +263,8 @@ export default {
         this.allCheckBox = [];
       }
     },
-  };
+  },
+}
 
 </script>
 
@@ -412,7 +430,7 @@ th {
 }
 
 .productColumn {
-  width: 1%;
+  width: 27%;
   background-color: white;
 }
 
@@ -429,6 +447,11 @@ th {
   width: 1%;
   color: red;
   background-color: #dcdcdc;
+}
+
+.width10 {
+  width: 10%;
+  /* white-space: nowrap !important; */
 }
 
 .width1 {
