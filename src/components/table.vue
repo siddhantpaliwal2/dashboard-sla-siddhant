@@ -56,9 +56,9 @@
       </thead>
       <tbody>
         <tr v-for="(row, index) in filteredData" :key="index" :class="getStatus(row.status)">
-          <td v-html="highlightMatches(row.status)" v-if="!index || (index && paginatedData[index-1].status !== row.status)" :rowspan="calculateRowspanNew('status', index)" class="width10"></td>
-          <td v-html="highlightMatches(row.core)" v-if="!index || (index && paginatedData[index-1].status !== row.status)" :rowspan="calculateRowspanNew('status', index)" class="width1"></td>
-          <td class="productColumn" v-html="highlightMatches(row.product)"></td>
+          <td  v-if="!index || (index && paginatedData[index-1].status !== row.status)" :rowspan="calculateRowspanNew('status', index)" class="width10">{{ row.status }}</td>
+          <td  v-if="!index || (index && paginatedData[index-1].status !== row.status)" :rowspan="calculateRowspanNew('status', index)" class="width1">{{ row.core }}</td>
+          <td class="productColumn">{{ row.product }}</td>
           <td>{{ row.lithography }}</td>
           <td><div class="innerCells">{{ row.threads }}</div></td>
           <td><div class="innerCells">{{ row.baseFreq }}</div></td>
@@ -74,11 +74,11 @@
         <li class="page-item" :class="{ disabled: currentPage === 0 }">
           <button @click="currentPage--" :disabled="currentPage === 0">Previous</button>
         </li>
-        <li v-for="n in totalPages" :key="n" class="page-item" :class="{ active: n === currentPage }">
-          <button @click="changePage(n)">{{ n }}</button>
+        <li v-for="n in this.totalPages - 1" :key="n" class="page-item">
+          <button @click="currentPage = n" class="page-number" :class="{ active: n === currentPage }">{{ n }}</button>
         </li>
-        <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-          <button @click="currentPage++" :disabled="currentPage === totalPages">Next</button>
+        <li class="page-item">
+          <button @click="currentPage++" :disabled="currentPage ===  this.totalPages -1">Next</button>
         </li>
       </ul>
     </nav>
@@ -197,6 +197,7 @@ export default {
       console.log(tmp);
       const flatData = flattenData(tmp);
       const start = (this.currentPage) * this.rowsPerPage;
+      this.totalPages = Math.round(Object.keys(flatData).length / 100);
       console.log(flatData.slice(start, start + this.rowsPerPage))
       return flatData.slice(start, start + this.rowsPerPage);
     },
@@ -540,6 +541,26 @@ input[type=text], select {
   max-width: 200px;
   max-height: 15px;
   
+}
+
+ul.pagination {
+    display: inline-block;
+    padding: 10;
+    margin: 10;
+}
+ul.pagination li {display: inline;}
+ul.pagination li a {
+    color: black;
+    float: left;
+    padding: 8px 16px;
+    text-decoration: none;
+}
+.page-number {
+  margin: 5px;
+}
+
+.active {
+  background-color: chartreuse;
 }
 
 </style>
