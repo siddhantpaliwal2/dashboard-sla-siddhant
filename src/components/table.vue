@@ -49,7 +49,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(row, index) in paginatedData" :key="index">
+        <tr v-for="(row, index) in paginatedData" :key="index" :class="getStatus(row.status)">
           <td v-if="!index || (index && paginatedData[index-1].status !== row.status)" :rowspan="calculateRowspanNew('status', index)" class="width10">{{ row.status }}</td>
           <td v-if="!index || (index && paginatedData[index-1].status !== row.status)" :rowspan="calculateRowspanNew('status', index)" class="width1">{{ row.core }}</td>
           <td class="productColumn">{{ row.product }}</td>
@@ -196,6 +196,20 @@ export default {
 
   },
   methods: {
+
+    getStatus(status){
+      switch(status.toLowerCase()){
+        case 'launched' || 'launched(with ipu)':
+          return 'status-launched'
+        case 'discontinued':
+          return 'status-discontinued'
+        case 'announced':
+          return 'status-announced'
+        default:
+          return 'status-announced'
+      }
+
+    },
     calculateRowspanNew(column, index) {
       let rowspan = 1;
       let i = index + 1;
@@ -438,12 +452,24 @@ th {
 }
 
 .width10 {
-  width: 10%;
+  width: 6%;
   /* white-space: nowrap !important; */
 }
 
 .width1 {
   width: 1%;
   /* white-space: nowrap !important; */
+}
+
+.status-launched td{
+  background-color: #7fff00;
+}
+
+.status-discontinued td{
+  background-color:red;
+}
+
+.status-announced td{
+  background-color: yellow;
 }
 </style>
