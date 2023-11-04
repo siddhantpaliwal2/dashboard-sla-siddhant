@@ -1,32 +1,38 @@
 <template>
   <div>
     <!-- Hide By status Bar -->
-    <div class="hideBar">
-      <label class="hideLabel">Hide:</label>
-      <div class="checkbox">
-        <!-- All status -->
-        <input
-          id="allStatuses"
-          type="checkbox"
-          class="styled"
-          @click="hideShowALLstatus"
-          v-model="allCheck"
-        />
-        <label for="allStatuses">All statuses</label>
-
-        <!-- Dynamic status checkboxes -->
-        <div v-for="status in productDataBystatus.status" :key="status">
+    <div class="menu">
+      <div class="hideBar">
+        <label class="hideLabel">Hide:</label>
+        <div class="checkbox">
+          <!-- All status -->
           <input
-            :id="status"
+            id="allStatuses"
             type="checkbox"
             class="styled"
-            :value="status"
-            v-model="hidestatus"
+            @click="hideShowALLstatus"
+            v-model="allCheck"
           />
-          <label :for="status">{{ status }}</label>
+          <label for="allStatuses">All statuses</label>
+
+          <!-- Dynamic status checkboxes -->
+          <div v-for="status in productDataBystatus.status" :key="status">
+            <input
+              :id="status"
+              type="checkbox"
+              class="styled"
+              :value="status"
+              v-model="hidestatus"
+            />
+            <label :for="status">{{ status }}</label>
+          </div>
         </div>
       </div>
+      
+      <input type="text" placeholder="Search for product code" v-model="filter" />
+      
     </div>
+    
 
     <!-- Main Table Design -->
     <table>
@@ -49,10 +55,10 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(row, index) in paginatedData" :key="index" :class="getStatus(row.status)">
-          <td v-if="!index || (index && paginatedData[index-1].status !== row.status)" :rowspan="calculateRowspanNew('status', index)" class="width10">{{ row.status }}</td>
-          <td v-if="!index || (index && paginatedData[index-1].status !== row.status)" :rowspan="calculateRowspanNew('status', index)" class="width1">{{ row.core }}</td>
-          <td class="productColumn">{{ row.product }}</td>
+        <tr v-for="(row, index) in filteredData" :key="index" :class="getStatus(row.status)">
+          <td v-html="highlightMatches(row.status)" v-if="!index || (index && paginatedData[index-1].status !== row.status)" :rowspan="calculateRowspanNew('status', index)" class="width10"></td>
+          <td v-html="highlightMatches(row.core)" v-if="!index || (index && paginatedData[index-1].status !== row.status)" :rowspan="calculateRowspanNew('status', index)" class="width1"></td>
+          <td class="productColumn" v-html="highlightMatches(row.product)"></td>
           <td>{{ row.lithography }}</td>
           <td><div class="innerCells">{{ row.threads }}</div></td>
           <td><div class="innerCells">{{ row.baseFreq }}</div></td>
@@ -118,6 +124,8 @@ export default {
       allCheck: false,
       currentPage: 0,
       rowsPerPage: 100,
+      searchQuery: '',
+      filter: ''
     };
   },
   mounted() {
@@ -192,10 +200,33 @@ export default {
       console.log(flatData.slice(start, start + this.rowsPerPage))
       return flatData.slice(start, start + this.rowsPerPage);
     },
-    
 
+    filteredData() {
+    // Make sure that `filter` is not undefined or null.
+    const filterLower = (this.filter || "").toLowerCase();
+    
+    return this.paginatedData.filter(row => {
+      return Object.keys(row).some(key => {
+        const value = row[key];
+        // Ensure that you only compare strings.
+        return typeof value === 'string' && value.toLowerCase().includes(filterLower);
+      });
+    });
+  },
+  
   },
   methods: {
+    highlightMatches(text) {
+  // Escape the 'filter' to safely use it in a regular expression
+  const escapedFilter = this.filter.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+  // If there's no search term, don't attempt to highlight anything
+  if (!escapedFilter) return text;
+
+  const re = new RegExp(escapedFilter, 'g');
+  return text.replace(re, matchedText => `<strong>${matchedText}</strong>`);
+},
+
 
     getStatus(status){
       switch(status.toLowerCase()){
@@ -210,6 +241,7 @@ export default {
       }
 
     },
+    
     calculateRowspanNew(column, index) {
       let rowspan = 1;
       let i = index + 1;
@@ -429,6 +461,8 @@ th {
 .hideBar {
   list-style: none;
   display: flex;
+  align-items: center;
+  
 }
 
 .productColumn {
@@ -478,4 +512,34 @@ th {
   font-family: Arial, Helvetica, sans-serif;
   
 }
+
+.menu{
+  padding: 10px;
+  height: 10px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%
+}
+.right-aligned {
+  float: right;
+}
+
+input[type=text], select {
+  width: 100%;
+  padding: 12px 20px;
+  margin-top: 9px;
+  margin-right: 7px;
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  
+  margin-left: auto;
+  max-width: 200px;
+  max-height: 15px;
+  
+}
+
 </style>
