@@ -30,7 +30,7 @@
 
     <!-- Main Table Design -->
     <table>
-      <thead>
+      <thead class = "headings">
         <tr>
           <th colspan="12">Dashboard SLA</th>
         </tr>
@@ -38,7 +38,7 @@
           <th colspan="3">{{ wwData }}</th>
           <th colspan="8">Product Info</th>
         </tr>
-        <tr>
+        <tr class="headings">
           <th>Status</th>
           <th>Cores</th>
           <th class="width1">Product</th>
@@ -462,14 +462,20 @@ th {
 }
 
 .status-launched td{
-  background-color: #7fff00;
+  background-color: #a8ff51;
 }
 
 .status-discontinued td{
-  background-color:red;
+  background-color: #ff2c2c;
 }
 
 .status-announced td{
   background-color: yellow;
+}
+
+.headings{
+  background-color: rgba(156, 165, 172, 0.141);
+  font-family: Arial, Helvetica, sans-serif;
+  
 }
 </style>
