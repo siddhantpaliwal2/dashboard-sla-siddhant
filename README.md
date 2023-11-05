@@ -101,3 +101,17 @@ paginatedData() {
       return flatData.slice(start, start + this.rowsPerPage);
     }
 ```
+
+### 3. Coloring Table based on Product Status
+Coloring was implemented dynamically on table based on the status.
+
+Below are the coloring code as per status of the product:
+| Status                | Color Code                    |
+| -------------------   | ----------------------------- |
+| Launched              | background-color: #a8ff51     |
+| Discontinued          | background-color: #ff2c2c     |
+| Announced             | background-color: yellow;     |
+
+### 4. Search
+> Note: Current status of this feature is in progress.
+

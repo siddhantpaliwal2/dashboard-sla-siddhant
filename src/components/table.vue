@@ -56,8 +56,8 @@
       </thead>
       <tbody>
         <tr v-for="(row, index) in filteredData" :key="index" :class="getStatus(row.status)">
-          <td  v-if="!index || (index && paginatedData[index-1].status !== row.status)" :rowspan="calculateRowspanNew('status', index)" class="width10">{{ row.status }}</td>
-          <td  v-if="!index || (index && paginatedData[index-1].status !== row.status)" :rowspan="calculateRowspanNew('status', index)" class="width1">{{ row.core }}</td>
+          <td  v-if="!index || (index && filteredData[index-1].status !== row.status)" :rowspan="calculateRowspanNew('status', index)" class="width10">{{ row.status }}</td>
+          <td  v-if="!index || (index && filteredData[index-1].status !== row.status)" :rowspan="calculateRowspanNew('status', index)" class="width1">{{ row.core }}</td>
           <td class="productColumn">{{ row.product }}</td>
           <td>{{ row.lithography }}</td>
           <td><div class="innerCells">{{ row.threads }}</div></td>
@@ -110,9 +110,8 @@ function flattenData(productDataByStatus) {
             }
           }
         }
-        console.log("flattened data:", {flatData});
         return flatData;
-      }
+}
 
 export default {
   data: function () {
@@ -147,6 +146,7 @@ export default {
         let status = element.Status;
         let cores = element.Cores;
 
+
         // push status to set
         statusSet.add(status);
 
@@ -161,7 +161,6 @@ export default {
       const strings = new Set(statusSet);
       const sortedStringsArray = [...strings].sort();
       statusSet = new Set(sortedStringsArray);
-      console.log(tmp);
 
 
       return {
@@ -176,12 +175,15 @@ export default {
       let data = data_json;
       let statusSet = new Set();
 
+      console.log("pagined: " + this.hidestatus);
+
       data.forEach((element) => {
         let status = element.Status;
         let cores = element.Cores;
 
         // push status to set
         statusSet.add(status);
+        console.log("Row status" + status);
 
         if (this.hidestatus.includes(status)) return; // Hide by status
         if (!tmp[status]) tmp[status] = {};
@@ -194,25 +196,26 @@ export default {
       const strings = new Set(statusSet);
       const sortedStringsArray = [...strings].sort();
       statusSet = new Set(sortedStringsArray);
-      console.log(tmp);
       const flatData = flattenData(tmp);
-      const start = (this.currentPage) * this.rowsPerPage;
-      this.totalPages = Math.round(Object.keys(flatData).length / 100);
-      console.log(flatData.slice(start, start + this.rowsPerPage))
-      return flatData.slice(start, start + this.rowsPerPage);
+      return flatData;
+      
     },
 
     filteredData() {
     // Make sure that `filter` is not undefined or null.
     const filterLower = (this.filter || "").toLowerCase();
     
-    return this.paginatedData.filter(row => {
+    let d =  this.paginatedData.filter(row => {
       return Object.keys(row).some(key => {
         const value = row[key];
         // Ensure that you only compare strings.
         return typeof value === 'string' && value.toLowerCase().includes(filterLower);
       });
     });
+
+    const start = (this.currentPage) * this.rowsPerPage;
+      this.totalPages = Math.round(Object.keys(d).length / 100);
+      return d.slice(start, start + this.rowsPerPage);
   },
   
   },
@@ -246,7 +249,7 @@ export default {
     calculateRowspanNew(column, index) {
       let rowspan = 1;
       let i = index + 1;
-      while (i < this.paginatedData.length && this.paginatedData[i][column] === this.paginatedData[index][column]) {
+      while (i < this.filteredData.length && this.filteredData[i][column] === this.filteredData[index][column]) {
         rowspan++;
         i++;
       }
@@ -284,6 +287,8 @@ export default {
         this.hidestatus = [];
         this.allCheckBox = [];
       }
+
+      console.log("chedk: " + document.querySelector(".styled").checked);
 
       if (document.querySelector(".styled").checked) {
         this.hidestatus = this.productDataBystatus.status;
@@ -560,7 +565,7 @@ ul.pagination li a {
 }
 
 .active {
-  background-color: chartreuse;
+  background-color: rgb(190, 190, 190);
 }
 
 </style>
