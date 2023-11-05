@@ -22,7 +22,7 @@ npm run build
 | 1. Migrate v2 to v3 | Completed     |
 | 2. Pagination       | Completed     |
 | 3. Coloring         | Completed     |
-| 4. Search           | In Progress   |
+| 4. Search           | Completed     |
 
 ### Branches and Code Management
 
@@ -143,5 +143,37 @@ Below are the coloring code as per status of the product:
 | Announced             | background-color: yellow;     |
 
 ### 4. Search
-> Note: Current status of this feature is in progress.
 
+Search was implemented primarily through the filteredData() function that took advantage of the filter v-model. The display of rows was changed and now loops through filteredData instead. A cool function called highlightmatches() was implemented to give user real-time feedback on his searches. Below are these two functions.
+
+```sh
+
+filteredData() {
+    // Make sure that `filter` is not undefined or null.
+    const filterLower = (this.filter || "").toLowerCase();
+    
+    let d =  this.paginatedData.filter(row => {
+      return Object.keys(row).some(key => {
+        const value = row[key];
+        // Ensure that you only compare strings.
+        return typeof value === 'string' && value.toLowerCase().includes(filterLower);
+      });
+    });
+
+    const start = (this.currentPage) * this.rowsPerPage;
+      this.totalPages = Math.round(Object.keys(d).length / 100);
+      return d.slice(start, start + this.rowsPerPage);
+  }
+
+  highlightMatches(text) {
+  // Escape the 'filter' to safely use it in a regular expression
+  const escapedFilter = this.filter.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+  // If there's no search term, don't attempt to highlight anything
+  if (!escapedFilter) return text;
+
+  const re = new RegExp(escapedFilter, 'g');
+  return text.replace(re, matchedText => `<strong>${matchedText}</strong>`);
+}
+
+```
