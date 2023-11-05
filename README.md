@@ -24,12 +24,16 @@ npm run build
 | 3. Coloring         | Completed     |
 | 4. Search           | In Progress   |
 
+### Branches and Code Management
+
+A dev branch was used to ensure source code version control instead of pushing to main directly. Each feature to be implemented was completed in a separate branch. For example, all functionalities related to pagination were completed in the pagination branch.
+
 ## Task Details
 ### 1. Migrating Application from Vue2 to Vue3
 
 Upgrade Workflow
-The following workflow walks through the steps of migrating an actual Vue 2 app (Vue HackerNews 2.0) to Vue 3. 
-The full commits can be found https://github.com/vuejs/vue-hackernews-2.0/compare/migration.
+The following workflow walks through the steps of migrating an actual Vue 2 app to Vue 3. 
+The full commits can be found https://v3-migration.vuejs.org/migration-build.html.
 Note that the actual steps required for your project may vary, and these steps
 should be treated as general guidance rather than strict instructions.
 
@@ -61,7 +65,33 @@ and replace vue-template-compiler (if present) with @vue/compiler-sfc:
 Remove node_modules & package-lock.json file and run ```sh npm install ``` then compile the project and check the version.
 
 ### 2. Pagination
-Implemented pagination method to apply pagination on the json data and render 100 rows per page.
+Implemented pagination method to apply pagination on the json data and render 100 rows per page. The nested data was first flattened for future ease of use. Flattening the data allowed me to output the data as rows (eg:- row.status). This data was then paginated. 
+
+```sh
+function flattenData(productDataByStatus) {
+        const flatData = [];
+        // Iterate over each status
+        for (const [status, cores] of Object.entries(productDataByStatus)) {
+          // Iterate over each core within this status
+          for (const [core, products] of Object.entries(cores)) {
+            // Iterate over each product within this core
+            for (const product of products) {
+              // Create a flat representation of the row
+              flatData.push({
+                status: status,
+                core: core,
+                product: product.Product,
+                lithography: product.Lithography,
+                threads: product.Threads,
+                baseFreq: product.Base_Freq,
+                maxTurboFreq: product.Max_Turbo_Freq,
+              });
+            }
+          }
+        }
+        return flatData;
+}
+```
 
 ```sh
 paginatedData() {

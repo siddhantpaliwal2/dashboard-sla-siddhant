@@ -3,12 +3,17 @@ table {
 }
 
 
-input[type="text"] {
-  position: absolute;
-  right: 0;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  text-align: center;
-  border: 0;
+input[type=text], select {
+  width: 100%;
+  padding: 12px 20px;
+  margin-right: 10px;
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  margin-bottom: 5px;
+  margin-left: auto;
+  max-width: 200px;
+  max-height: 15px;
+  
 }
