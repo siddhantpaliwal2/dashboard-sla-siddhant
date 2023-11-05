@@ -6,6 +6,8 @@
         <label class="hideLabel">Hide:</label>
         <div class="checkbox">
           <!-- All status -->
+          
+          <label for="allStatuses">All statuses</label>
           <input
             id="allStatuses"
             type="checkbox"
@@ -13,10 +15,11 @@
             @click="hideShowALLstatus"
             v-model="allCheck"
           />
-          <label for="allStatuses">All statuses</label>
 
           <!-- Dynamic status checkboxes -->
           <div v-for="status in productDataBystatus.status" :key="status">
+           
+            <label :for="status">{{ status }}</label>
             <input
               :id="status"
               type="checkbox"
@@ -24,7 +27,6 @@
               :value="status"
               v-model="hidestatus"
             />
-            <label :for="status">{{ status }}</label>
           </div>
         </div>
       </div>
@@ -56,9 +58,9 @@
       </thead>
       <tbody>
         <tr v-for="(row, index) in filteredData" :key="index" :class="getStatus(row.status)">
-          <td  v-if="!index || (index && filteredData[index-1].status !== row.status)" :rowspan="calculateRowspanNew('status', index)" class="width10">{{ row.status }}</td>
-          <td  v-if="!index || (index && filteredData[index-1].status !== row.status)" :rowspan="calculateRowspanNew('status', index)" class="width1">{{ row.core }}</td>
-          <td class="productColumn">{{ row.product }}</td>
+          <td  v-html = highlightMatches(row.status) v-if="!index || (index && filteredData[index-1].status !== row.status)" :rowspan="calculateRowspanNew('status', index)" class="width10"></td>
+          <td  v-html = highlightMatches(row.core) v-if="!index || (index && filteredData[index-1].status !== row.status)" :rowspan="calculateRowspanNew('status', index)" class="width1"></td>
+          <td v-html = highlightMatches(row.product) class="productColumn"></td>
           <td>{{ row.lithography }}</td>
           <td><div class="innerCells">{{ row.threads }}</div></td>
           <td><div class="innerCells">{{ row.baseFreq }}</div></td>
@@ -74,10 +76,10 @@
         <li class="page-item" :class="{ disabled: currentPage === 0 }">
           <button @click="currentPage--" :disabled="currentPage === 0">Previous</button>
         </li>
-        <li v-for="n in this.totalPages - 1" :key="n" class="page-item">
+        <li v-if="this.totalPages != 0" v-for="n in this.totalPages - 1" :key="n" class="page-item">
           <button @click="currentPage = n" class="page-number" :class="{ active: n === currentPage }">{{ n }}</button>
         </li>
-        <li class="page-item">
+        <li v-if="this.totalPages != 0" class="page-item">
           <button @click="currentPage++" :disabled="currentPage ===  this.totalPages -1">Next</button>
         </li>
       </ul>
