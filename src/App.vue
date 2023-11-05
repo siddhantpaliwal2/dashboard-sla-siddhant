@@ -1,5 +1,5 @@
 <script setup>
-import TheTable from "./components/table.vue";
+import TheTable from "./components/table/table.vue";
 </script>
 
 <template>
