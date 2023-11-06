@@ -26,7 +26,7 @@ npm run build
 
 ### Branches and Code Management
 
-A dev branch was used to ensure source code version control instead of pushing to main directly. Each feature to be implemented was completed in a separate branch. For example, all functionalities related to pagination were completed in the pagination branch.
+A dev branch was used to ensure source code version control instead of pushing to main directly. Each feature to be implemented was completed in a separate branch. For example, all functionalities related to pagination were completed in the pagination branch. Code for the table was also split up into table.js, table.vue, and table.css to enhance readability.
 
 ## Task Details
 ### 1. Migrating Application from Vue2 to Vue3
